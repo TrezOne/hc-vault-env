@@ -1,4 +1,4 @@
-name: "Generate .env file from Hashicorp Vault"
+name: "Generate .env file from Hashicorp Vault (jq tweak)"
 description: "Get secrets from Vault and write to a .env file"
 
 branding:
