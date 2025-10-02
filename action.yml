@@ -16,11 +16,11 @@ inputs:
 
   HC_VAULT_USERNAME:
     description: "Vault login username"
-    required: false
+    required: true
 
   HC_VAULT_PASSWORD:
     description: "Vault login password"
-    required: false
+    required: true
 
   HC_VAULT_SECRETS_PATH:
     description: "Vault secrets path"
@@ -43,7 +43,6 @@ runs:
         mv vault /usr/local/bin
 
     - name: Login to Hashicorp Vault with userpass
-      if: ${{ HC_VAULT_AUTH_METHOD == 'userpass' }}
       shell: bash
       env:
         VAULT_ADDR: ${{ inputs.HC_VAULT_ADDR }}
