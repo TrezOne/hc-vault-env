@@ -1,0 +1,68 @@
+name: "Generate .env file from Hashicorp Vault"
+description: "Get secrets from Vault and write to a .env file"
+
+branding:
+  icon: "lock"
+  color: "purple"
+
+inputs:
+  HC_VAULT_VERSION:
+    description: "Hashicorp Vault version"
+    required: true
+
+  HC_VAULT_ADDR:
+    description: "Vault url"
+    required: true
+
+  HC_VAULT_USERNAME:
+    description: "Vault login username"
+    required: false
+
+  HC_VAULT_PASSWORD:
+    description: "Vault login password"
+    required: false
+
+  HC_VAULT_SECRETS_PATH:
+    description: "Vault secrets path"
+    required: true
+
+  ENV_FILE_NAME:
+    description: "Name of created env-file"
+    required: false
+    default: .env
+
+runs:
+  using: "composite"
+  steps:
+    - name: Install Hashicorp Vault
+      shell: bash
+      run: |
+        curl -S -O https://releases.hashicorp.com/vault/${{ inputs.HC_VAULT_VERSION }}/vault_${{ inputs.HC_VAULT_VERSION }}_linux_amd64.zip
+        unzip -u vault_${{ inputs.HC_VAULT_VERSION }}_linux_amd64.zip -d .
+        chmod +x vault
+        mv vault /usr/local/bin
+
+    - name: Login to Hashicorp Vault with userpass
+      if: ${{ HC_VAULT_AUTH_METHOD == 'userpass' }}
+      shell: bash
+      env:
+        VAULT_ADDR: ${{ inputs.HC_VAULT_ADDR }}
+        VAULT_SKIP_VERIFY: "true"
+      run: |
+        vault login \
+          -no-print \
+          -method=userpass \
+          username=${{ inputs.HC_VAULT_USERNAME }} \
+          password=${{ inputs.HC_VAULT_PASSWORD }}
+
+    - name: Create env-file from Hashicorp Vault config
+      shell: bash
+      env:
+        VAULT_TOKEN: ${{ inputs.HC_VAULT_TOKEN }}
+        VAULT_ADDR: ${{ inputs.HC_VAULT_ADDR }}
+        VAULT_SKIP_VERIFY: "true"
+      run: |
+        vault kv get -format=json ${{ inputs.HC_VAULT_SECRETS_PATH }} \
+        | jq -r '.data.data' \
+        | jq -r 'keys[] as $k | "\($k)='\''\(.[$k])'\''"' > .env \
+        > ${{ inputs.ENV_FILE_NAME }}
