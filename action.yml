@@ -37,7 +37,7 @@ runs:
     - name: Install Hashicorp Vault
       shell: bash
       run: |
-        curl -S -O https://releases.hashicorp.com/vault/${{ inputs.HC_VAULT_VERSION }}/vault_${{ inputs.HC_VAULT_VERSION }}_linux_amd64.zip
+        curl -sS -O https://releases.hashicorp.com/vault/${{ inputs.HC_VAULT_VERSION }}/vault_${{ inputs.HC_VAULT_VERSION }}_linux_amd64.zip
         unzip -u vault_${{ inputs.HC_VAULT_VERSION }}_linux_amd64.zip -d .
         chmod +x vault
         mv vault /usr/local/bin
