@@ -11,11 +11,11 @@ inputs:
     required: true
 
   HC_VAULT_ADDR:
-    description: "Vault URL"
+    description: "Vault url"
     required: true
 
   HC_VAULT_AUTH:
-    description: "Specify preferred login method, e.g., token, userpass"
+    description: "Specify preferred login method, e.g. token, userpass, etc."
     required: true
 
   HC_VAULT_USERNAME:
@@ -46,10 +46,9 @@ runs:
       shell: bash
       run: |
         curl -sS -O https://releases.hashicorp.com/vault/${{ inputs.HC_VAULT_VERSION }}/vault_${{ inputs.HC_VAULT_VERSION }}_linux_amd64.zip
-        unzip -o vault_${{ inputs.HC_VAULT_VERSION }}_linux_amd64.zip
+        unzip -u vault_${{ inputs.HC_VAULT_VERSION }}_linux_amd64.zip -d .
         chmod +x vault
-        sudo mv vault /usr/local/bin
-        rm vault_${{ inputs.HC_VAULT_VERSION }}_linux_amd64.zip
+        mv vault /usr/local/bin
 
     - name: Login to Hashicorp Vault with userpass
       shell: bash
@@ -66,7 +65,7 @@ runs:
 
     - name: Login to Hashicorp Vault with token
       shell: bash
-      if: contains(inputs.HC_VAULT_AUTH, 'token') || inputs.HC_VAULT_AUTH == ''
+      if: contains(inputs.HC_VAULT_AUTH, 'token')
       env:
         VAULT_ADDR: ${{ inputs.HC_VAULT_ADDR }}
         VAULT_SKIP_VERIFY: "true"
@@ -81,6 +80,7 @@ runs:
         VAULT_ADDR: ${{ inputs.HC_VAULT_ADDR }}
         VAULT_SKIP_VERIFY: "true"
       run: |
-        vault kv get -format=json "${{ inputs.HC_VAULT_SECRETS_PATH }}" \
-          | jq -r '.data.data | to_entries[] | "\(.key)='\''\(.value)'\''"' \
-          > "${{ inputs.ENV_FILE_NAME }}"
+        vault kv get -format=json ${{ inputs.HC_VAULT_SECRETS_PATH }} \
+        | jq -r '.data.data' \
+        | jq -r 'keys[] as $k | "\($k)='\''\(.[$k])'\''"' > .env \
+        > ${{ inputs.ENV_FILE_NAME }}
