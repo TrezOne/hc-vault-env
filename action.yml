@@ -71,10 +71,7 @@ runs:
         VAULT_SKIP_VERIFY: "true"
         VAULT_TOKEN: ${{ inputs.HC_VAULT_TOKEN }}
       run: |
-        vault login \
-          -no-print \
-          -method=token \
-          ${VAULT_TOKEN}
+        vault token lookup || echo "⛔ Vault token invalid or expired."
 
     - name: Create env-file from Hashicorp Vault config
       shell: bash
