@@ -65,7 +65,7 @@ runs:
 
     - name: Login to Hashicorp Vault with token
       shell: bash
-      if: contains(inputs.HC_VAULT_AUTH,'token') || ${{ inputs.HC_VAULT_AUTH }} == ''
+      if: contains(inputs.HC_VAULT_AUTH, 'token')
       env:
         VAULT_ADDR: ${{ inputs.HC_VAULT_ADDR }}
         VAULT_SKIP_VERIFY: "true"
