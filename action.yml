@@ -69,10 +69,12 @@ runs:
       env:
         VAULT_ADDR: ${{ inputs.HC_VAULT_ADDR }}
         VAULT_SKIP_VERIFY: "true"
+        VAULT_TOKEN: ${{ inputs.HC_VAULT_TOKEN }}
       run: |
         vault login \
           -no-print \
-          -method=token
+          -method=token \
+          ${VAULT_TOKEN}
 
     - name: Create env-file from Hashicorp Vault config
       shell: bash
