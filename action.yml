@@ -14,13 +14,21 @@ inputs:
     description: "Vault url"
     required: true
 
+  HC_VAULT_AUTH:
+    description: "Specify preferred login method, e.g. token, userpass, etc."
+    required: true
+
   HC_VAULT_USERNAME:
     description: "Vault login username"
-    required: true
+    required: false
 
   HC_VAULT_PASSWORD:
     description: "Vault login password"
-    required: true
+    required: false
+
+  HC_VAULT_TOKEN:
+    description: "Token for logging into and reading from Hashicorp Vault."
+    required: false
 
   HC_VAULT_SECRETS_PATH:
     description: "Vault secrets path"
@@ -44,6 +52,7 @@ runs:
 
     - name: Login to Hashicorp Vault with userpass
       shell: bash
+      if: contains(inputs.HC_VAULT_AUTH,'userpass')
       env:
         VAULT_ADDR: ${{ inputs.HC_VAULT_ADDR }}
         VAULT_SKIP_VERIFY: "true"
@@ -53,6 +62,17 @@ runs:
           -method=userpass \
           username=${{ inputs.HC_VAULT_USERNAME }} \
           password=${{ inputs.HC_VAULT_PASSWORD }}
+
+    - name: Login to Hashicorp Vault with token
+      shell: bash
+      if: contains(inputs.HC_VAULT_AUTH,'token') || 
+      env:
+        VAULT_ADDR: ${{ inputs.HC_VAULT_ADDR }}
+        VAULT_SKIP_VERIFY: "true"
+      run: |
+        vault login \
+          -no-print \
+          -method=token
 
     - name: Create env-file from Hashicorp Vault config
       shell: bash
