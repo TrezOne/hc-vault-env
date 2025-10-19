@@ -63,16 +63,6 @@ runs:
           username=${{ inputs.HC_VAULT_USERNAME }} \
           password=${{ inputs.HC_VAULT_PASSWORD }}
 
-    - name: Login to Hashicorp Vault with token
-      shell: bash
-      if: contains(inputs.HC_VAULT_AUTH, 'token')
-      env:
-        VAULT_ADDR: ${{ inputs.HC_VAULT_ADDR }}
-        VAULT_SKIP_VERIFY: "true"
-        VAULT_TOKEN: ${{ inputs.HC_VAULT_TOKEN }}
-      run: |
-        vault token lookup || echo "⛔ Vault token invalid or expired."
-
     - name: Create env-file from Hashicorp Vault config
       shell: bash
       env:
